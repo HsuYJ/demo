@@ -1,0 +1,8 @@
+{
+	"name": "breakoutclone",
+	"main": "index.html",
+	"window": {
+		"width": 1280,
+		"height": 720
+	}
+}
