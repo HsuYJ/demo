@@ -16,7 +16,8 @@
 			['ani_slime_angry', 'ani_slime_angry.png'],
 			['ani_slime_dead', 'ani_slime_dead.png'],
 			['ani_orc_idle', 'ani_orc_idle.png'],
-			['monster2', 'monster_fly.png']
+			['monster2', 'monster_fly.png'],
+			['buff', 'buff.png']
 		)
 		.loadAudios(
 			['paddleExtend', 'extend.wav'],
@@ -44,21 +45,23 @@
 				Audios[audioName].volume = 0.3;
 			}
 
-			var monsterImage = Images.monster;
-			var monster_hit = mdom(null, 'canvas')
-			.setAttributes({
-				width: monsterImage.width,
-				height: monsterImage.height
-			});
-			var monsterCtx = monster_hit.entity.getContext('2d');
+			for (var imgName in Images) {
+				var img = Images[imgName];
+				var tempCanvas = mdom(null, 'canvas')
+				.setAttributes({
+					width: img.width,
+					height: img.height
+				});
+				var ctx = tempCanvas.entity.getContext('2d');
 
-			monsterCtx.fillStyle = '#FFFFFF';
-			monsterCtx.fillRect(0, 0, monsterImage.width, monsterImage.height);
-			monsterCtx.globalCompositeOperation = 'destination-in';
-			monsterCtx.drawImage(monsterImage, 0, 0);
+				ctx.fillStyle = '#FFFFFF';
+				ctx.fillRect(0, 0, img.width, img.height);
+				ctx.globalCompositeOperation = 'destination-in';
+				ctx.drawImage(img, 0, 0);
 
-			var hitMask_monster = monster_hit.entity;
-			document.body.appendChild(hitMask_monster);
+				Images[imgName + '_hit'] = tempCanvas.entity;
+				Images[imgName].hitImage = tempCanvas.entity;
+			}
 
 			// size
 			var Size = {};
@@ -66,7 +69,7 @@
 
 				power: 100,
 
-				fieldWidth: 100,
+				fieldWidth: 120,
 				fieldHeight: 100,
 
 				ballDiameter: 2,
@@ -85,10 +88,10 @@
 				bulletWidth: 0.5,
 				bulletHeight: 1,
 
-				brickRegionWidth: 100,
+				brickRegionWidth: 120,
 				brickRegionHeight: 60,
-				brickWidth: 5,
-				brickHeight: 5,
+				brickWidth: 8,
+				brickHeight: 8,
 
 				drag: 1
 			};
@@ -525,6 +528,119 @@
 				animation.lastUpdateTime = Date.now();
 			}
 
+			function Animator(SPRITE) {
+
+				this.target = SPRITE;
+				this.updater = void 0;
+				this.testType = 0; // 0: and, 1: or
+				this.endTests = [];
+				this.endActions = [];
+			}
+
+			// Animator
+			Animator.prototype = {
+				constructor: Animator,
+
+				setProps: function(PROPS) {
+
+					for (var propName in PROPS) {
+						this[propName] = PROPS[propName];
+					}
+
+					return this;
+				},
+
+				setUpdater: function(UPDATER) {
+
+					this.updater = UPDATER.bind(this);
+
+					return this;
+				},
+
+				addEndTest: function(TEST) {
+
+					this.endTests.push(TEST.bind(this));
+
+					return this;
+				},
+
+				addEndAction: function(ACTION) {
+
+					this.endActions.push(ACTION.bind(this));
+
+					return this;
+				},
+
+				launch: function() {
+
+					var self = this;
+
+					requestAnimationFrame(function() {
+
+						self.update();
+					});
+				},
+
+				update: function() {
+
+					var target = this.target;
+					var canvas = target.canvas;
+
+					this.updater(target);
+
+					if (target.onTransform) {
+						canvas.launchUpdate(target);
+					}
+
+					canvas.launchRender();
+
+					var isEnd = this.endTesting();
+
+					if (isEnd) {
+						var  endActions = this.endActions;
+
+						for (var i = 0, l = endActions.length; i < l; i++) {
+							endActions[i](target);
+						}
+
+						this.target = void 0;
+					} else { // request next update
+						var self = this;
+
+						requestAnimationFrame(function() {
+
+							self.update();
+						});
+					}
+				},
+
+				endTesting: function() {
+
+					var target = this.target;
+					var tests = this.endTests;
+					var type = this.testType; // 0: and, 1: or
+					var isEnd = type ? false : true;
+
+					for (var i = 0, l = tests.length; i < l; i++) {
+						var result = tests[i](target); // true: end, false: continue
+
+						if (type) { // or
+							if (result) {
+								isEnd = true;
+								break;
+							}
+						} else { // and
+							if (!result) {
+								isEnd = false;
+								break;
+							}
+						}
+					}
+
+					return isEnd;
+				}
+			};
+
 			var PreviousIndex = Math.floor(150 / 16);
 			var Paddle = {
 
@@ -687,7 +803,7 @@
 					CTX.translate(-toX * scaleX, -toY * scaleY);
 					CTX.scale(scaleX, scaleY);
 					CTX.globalAlpha = this.opacity;
-					CTX.fillStyle = '#333333';
+					CTX.fillStyle = '#CCCCCC';
 					CTX.fillRect(0, 0, this.width.value, this.height);
 					CTX.restore();
 				},
@@ -764,7 +880,7 @@
 					this.canvas.launchUpdate(this);
 				},
 
-				destroy: function() {
+				destroy: function() { // u
 
 					var duration = Paddle.destroyDuration;
 
@@ -774,7 +890,7 @@
 					Paddle.alive = false;
 				},
 
-				revive: function() {
+				revive: function() { // u
 
 					var duration = Paddle.destroyDuration;
 
@@ -896,7 +1012,7 @@
 
 							var fieldHeight = Size.fieldHeight;
 
-							if (prevBallY <= (fieldHeight - Size.paddleRailHeight)) { // above bar
+							if (prevBallY <= (fieldHeight - Size.paddleRailHeight + Size.paddleHeight)) { // above bar
 								var barStateX = Paddle.x;
 								var barX = barStateX.value;
 								var barWidth = Paddle.width.value;
@@ -1162,7 +1278,6 @@
 
 				this.x = BALL.x;
 				this.y = BALL.y;
-				this.alive = true;
 				this.display = true;
 
 				EffectFieldCanvas.appendSprite(this);
@@ -1174,7 +1289,7 @@
 
 				update: function() {
 
-					//return !this.alive;
+
 				},
 
 				render: function(CTX) {
@@ -1207,7 +1322,6 @@
 
 				destroy: function() {
 
-					this.alive = false;
 					this.canvas.removeSprite(this);
 				}
 			};
@@ -1491,12 +1605,19 @@
 					//	CTX.drawImage(this.image, 0, 0, this.image.width, this.image.height, 0, 0, this.width, this.height);
 					//}
 
-					/*var blink = this.blink;
+					var blink = this.blink;
 
 					if (blink) {
+						image = image.hitImage;
 						CTX.globalAlpha = blink;
-						CTX.drawImage(hitMask_monster, 0, 0, this.image.width, this.image.height, 0, 0, this.width, this.height);
-					}*/
+						CTX.drawImage(image,
+							index * (image.width / frameNumber),
+							0,
+							(image.width / frameNumber),
+							image.height,
+							0, 0, this.width, this.height
+						);
+					}
 
 					CTX.restore();
 				},
@@ -1547,7 +1668,7 @@
 						yDelta: Math.random() * power,
 						scale: 1,
 						scaleDelta: Math.random() / 60,
-						rotateZDelta: Math.random() * power * wayX
+						rotateZDelta: Math.random() * power / 2 * wayX
 					})
 					.setUpdater(function(TARGET) {
 
@@ -1758,180 +1879,6 @@
 				}
 			};
 
-			function Animator(SPRITE) {
-
-				this.target = SPRITE;
-				this.updater = void 0;
-				this.testType = 0; // 0: and, 1: or
-				this.endTests = [];
-				this.endActions = [];
-			}
-
-			Animator.prototype = {
-				constructor: Animator,
-
-				setProps: function(PROPS) {
-
-					for (var propName in PROPS) {
-						this[propName] = PROPS[propName];
-					}
-
-					return this;
-				},
-
-				setUpdater: function(UPDATER) {
-
-					this.updater = UPDATER.bind(this);
-
-					return this;
-				},
-
-				addEndTest: function(TEST) {
-
-					this.endTests.push(TEST.bind(this));
-
-					return this;
-				},
-
-				addEndAction: function(ACTION) {
-
-					this.endActions.push(ACTION.bind(this));
-
-					return this;
-				},
-
-				launch: function() {
-
-					var self = this;
-
-					requestAnimationFrame(function() {
-
-						self.update();
-					});
-				},
-
-				update: function() {
-
-					var target = this.target;
-					var canvas = target.canvas;
-
-					this.updater(target);
-
-					if (target.onTransform) {
-						canvas.launchUpdate(target);
-					}
-
-					canvas.launchRender();
-
-					var isEnd = this.endTesting();
-
-					if (isEnd) {
-						var  endActions = this.endActions;
-
-						for (var i = 0, l = endActions.length; i < l; i++) {
-							endActions[i](target);
-						}
-
-						this.target = void 0;
-					} else { // request next update
-						var self = this;
-
-						requestAnimationFrame(function() {
-
-							self.update();
-						});
-					}
-				},
-
-				endTesting: function() {
-
-					var target = this.target;
-					var tests = this.endTests;
-					var type = this.testType; // 0: and, 1: or
-					var isEnd = type ? false : true;
-
-					for (var i = 0, l = tests.length; i < l; i++) {
-						var result = tests[i](target); // true: end, false: continue
-
-						if (type) { // or
-							if (result) {
-								isEnd = true;
-								break;
-							}
-						} else { // and
-							if (!result) {
-								isEnd = false;
-								break;
-							}
-						}
-					}
-
-					return isEnd;
-				}
-			};
-
-			function DestroyEffect(BRICK) {
-
-				var x = BRICK.x;
-				var y = BRICK.y;
-
-				this.x = x;
-				this.y = y;
-				this.color = BRICK.color;
-				this.wayX = Math.random() > 0.5 ? 1 : -1;
-				this.xDelta = Math.random() * Power * 0.2 / 60;
-				this.yDelta = Math.random() * Power / 60;
-				this.scaleDelta = Math.random() / 60;
-				this.scale = 1;
-				this.degreeDelta = Math.random() * Power * this.wayX / 60;
-				this.degree = 0;
-				this.opacity = 0.6;
-				this.toX = BrickWidth / 2; // center
-				this.toY = BrickHeight / 2; // center
-
-				Ctx.clearRect(x, y, BrickWidth, BrickHeight);
-				addEffect(this);
-			}
-
-			DestroyEffect.prototype = {
-				constructor: DestroyEffect,
-
-				update: function() {
-
-					var degree = this.degree += this.degreeDelta;
-					var scale = this.scale += this.scaleDelta;
-					var increseX = this.xDelta * scale;
-					var increseY = this.yDelta * scale;
-					var x = this.x += increseX * this.wayX;
-					var y = this.y -= increseY;
-					var toX = this.toX;
-					var toY = this.toY;
-
-					ECtx.save();
-					ECtx.translate(x + toX, y + toY);
-					ECtx.rotate(degree * Math.PI / 180);
-					ECtx.translate(-toX * scale, -toY * scale);
-					ECtx.scale(scale, scale);
-					ECtx.fillStyle = this.color;
-					ECtx.fillRect(0, 0, BrickWidth, BrickHeight);
-					ECtx.fillStyle = '#FFFFFF';
-					ECtx.globalAlpha = this.opacity *= 0.98;
-					ECtx.fillRect(0, 0, BrickWidth, BrickHeight);
-					ECtx.restore();
-
-					if (this.y >= CanvasHeight) {
-						this.destroy();
-					} else {
-						this.yDelta -= Drag / 60;
-					}
-				},
-
-				destroy: function() {
-
-					removeEffect(this);
-				}
-			};
-
 			function generateBricks() { // init
 
 				for (var x = 0; x < BrickX; x++) {
@@ -1949,6 +1896,196 @@
 				}
 			}
 
+			function Bullet(SIDE, ATTACK_POWER, PROPS) {
+
+				this.x = 0;
+				this.y = Size.ballFloor;
+				this.width = Size.bulletWidth;
+				this.height = Size.bulletHeight;
+				this.scale = 1;
+				this.rotateZ = 0;
+				this.degree = 90; // (left)180 to 0(right)
+				this.color = '#FFFFFF';
+				this.attackPower = ATTACK_POWER || 1;
+
+				for (var propName in PROPS) {
+					this[propName] = PROPS[propName];
+				}
+
+				this.toX = this.width / 2;
+				this.toY = this.height / 2;
+
+				this.x = bulletStateHelper.getX(this, SIDE);
+				EffectFieldCanvas.appendSprite(this);
+				this.canvas.launchUpdate(this);
+				console.log(this.canvas);
+			}
+
+			Bullet.prototype = {
+				constructor: Bullet,
+
+				update: function() {
+
+					var power = Size.power;
+					var degree = this.degree;
+					var wayX = degree <= 90 ? 1 : -1;
+					var rateY = (wayX > 0 ? degree : (180 - degree)) / 90;
+					var increseY = power * rateY;
+					//var y = this.y.value + increseY;
+					var y = this.y + power;
+					var increseX = (power - increseY) * wayX;
+					var x = this.x + increseX;
+
+					if (y <= 0) { // ceiling touched
+						this.destroy();
+					} else {
+						var brickHeight = Size.brickHeight;
+						var sY = y / brickHeight;
+						var is_underBrickRegion = sY >= BrickY;
+
+						if (!is_underBrickRegion) {
+							if (sY < 0) {
+								sY = 0;
+							} else {
+								sY = Math.floor(sY);
+							}
+							var eY = (y + this.height) / brickHeight;
+							if (eY >= BrickY) {
+								eY = BrickY - 1;
+							} else {
+								eY = Math.floor(eY);
+							}
+							var width = this.width;
+							var sX = x / brickHeight;
+							if (sX < 0) {
+								sX = 0;
+							} else {
+								sX = Math.floor(sX);
+							}
+							var eX = (x + width) / Size.brickWidth;
+							if (eX >= BrickX) {
+								eX = BrickX - 1;
+							} else {
+								eX = Math.floor(eX);
+							}
+							// get brick regions around ball
+							var i, j, brick;
+
+							for (i = sX; i <= eX; i++) {
+								var brickXs = Bricks[i];
+
+								for (j = sY; j <= eY; j++) {
+									brick = brickXs[j];
+
+									if (brick.live) { // > 0
+										TouchedBricks.push(brick);
+									}
+								}
+							}
+							// at least one brick touched
+							var brickNumber = TouchedBricks.length;
+
+							if (brickNumber) {
+								var cX = x + width / 2;
+								var minDistance = Infinity;
+								var distance, closestBrick;
+								// find closest brick
+								// if two bricks has the same distance to bullet, choose the last one(near the bar)
+								for (i = 0; i < brickNumber; i++) {
+									brick = TouchedBricks[i];
+									distance = brick.cX - cX;
+
+									if (distance < minDistance) {
+										minDistance = distance;
+										closestBrick = brick;
+									}
+								}
+								// modify state and view for closest brick
+								closestBrick.hit(this.atk, 2); // direction is bottom
+								// destroy bullet
+								this.destroy();
+								// clear TouchedBricks
+								for (i = 0; i < brickNumber; i++) {
+									TouchedBricks.pop();
+								}
+								return;
+							}
+						}
+					}
+
+					this.x = x;
+					this.y = y;
+				},
+
+				render: function(CTX) {
+					console.log(this);
+					var scale = this.scale;
+					var toX = this.toX;
+					var toY = this.toY;
+
+					CTX.save();
+					CTX.translate(this.x + toX, this.y + this.z + toY);
+					CTX.rotate(this.rotateZ * Math.PI / 180);
+					CTX.translate(-toX * scale, -toY * scale);
+					CTX.scale(scale, scale);
+					//CTX.globalAlpha = this.opacity;
+					CTX.fillStyle = this.color;
+					CTX.fillRect(0, 0, this.width, this.height);
+
+					CTX.restore();
+				},
+
+				destroy: function() {
+
+					this.canvas.removeSprite(this);
+				}
+			};
+
+			var bulletStateHelper = {
+
+				getX: function(BULLET, SIDE) {
+
+					var x = Paddle.x.value;
+					var bulletWidth = BULLET.width;
+
+					if (SIDE === -1) { // left
+						x += bulletWidth;
+					} else if (SIDE === 1) { // right
+						x += Paddle.width.value - bulletWidth * 2;
+					} else { // 0, center
+						x += (Paddle.width.value - bulletWidth) / 2;
+					}
+
+					return x;
+				},
+
+				getSX: function(X) {
+
+					var sX = X / BrickWidth;
+
+					if (sX < 0) {
+						sX = 0;
+					} else {
+						sX = Math.floor(sX);
+					}
+
+					return sX;
+				},
+
+				getEX: function(X) {
+
+					var eX = (X + BulletWidth) / BrickWidth;
+
+					if (eX >= BrickX) {
+						eX = BrickX - 1;
+					} else {
+						eX = Math.floor(eX);
+					}
+
+					return eX;
+				}
+			};
+
 			// system
 			var system = {
 
@@ -1957,6 +2094,30 @@
 				init: function() {
 
 					new Ball();
+
+					setInterval(function() {
+
+						for (var i = 0; i < Bricks.length; i++) {
+							for (var j = 0; j < Bricks[i].length; j++) {
+								var brick = Bricks[i][j];
+
+								if (brick.live.value) {
+									var r = Math.random();
+
+									if (r > 0.98) {
+										brick.onAnimation = true;
+										setKeyframes(brick, brick.keyframeSet.idle);
+										brick.canvas.launchUpdate(brick);
+									} else if (r > 0.7) {
+										brick.onAnimation = true;
+										brick.canvas.launchUpdate(brick);
+									} else if (r < 0.3) {
+										brick.onAnimation = false;
+									}
+								}
+							}
+						}
+					}, 3000);
 				}
 			};
 
@@ -1969,29 +2130,6 @@
 				generateBricks();
 				Brick.prototype.generateKeyframeSet();
 				system.init();
-
-				setInterval(function() {
-					for (var i = 0; i < Bricks.length; i++) {
-						for (var j = 0; j < Bricks[i].length; j++) {
-							var brick = Bricks[i][j];
-
-							if (brick.live.value) {
-								var r = Math.random();
-
-								if (r > 0.98) {
-									brick.onAnimation = true;
-									setKeyframes(brick, brick.keyframeSet.idle);
-									brick.canvas.launchUpdate(brick);
-								} else if (r > 0.7) {
-									brick.onAnimation = true;
-									brick.canvas.launchUpdate(brick);
-								} else if (r < 0.3) {
-									brick.onAnimation = false;
-								}
-							}
-						}
-					}
-				}, 3000);
 
 				window.addEventListener('resize', function() {
 
@@ -2017,6 +2155,13 @@
 					} else if (key === '4') {
 						console.log('auto play');
 						system.autoPlay = true;
+					} else if (key === '5') {
+						console.log('bullet');
+						new Bullet(-1);
+						new Bullet(0);
+						new Bullet(1);
+					} else if (key === 'Escape') {
+						//nwin.close();
 					}
 				});
 			}
