@@ -8,6 +8,7 @@ var Rl = (function() {
 		images: Images,
 		audios: Audios,
 	};
+	var Containers = [];
 	var ImagePath = '';
 	var AudioPath = '';
 	var WhenProgress = [];
@@ -48,6 +49,50 @@ var Rl = (function() {
 			}
 		}
 	}
+
+	function Container(NAME) { // u
+
+		this.path = '';
+		Containers.push(this);
+	}
+
+	Container.prototype = {
+		constructor: Container,
+
+		setPath: function(PATH) {
+
+			this.path = PATH;
+
+			return this;
+		},
+
+		addSubcontainer: function(NAME) {
+
+			this[NAME] = new Container(NAME);
+
+			return this;
+		},
+
+		loadSource: function(NAME, FILE_NAME, PATH) {
+
+			OnLoadingNumber++;
+
+			var src = (PATH || this.path) + FILE_NAME;
+			var image = new Image();
+
+			image.addEventListener('load', check);
+			image.src = src;
+			Images[NAME] = image;
+
+			return this;
+		},
+
+		loadSources: function() {
+
+
+			return this;
+		}
+	};
 
 	var Method = {
 
