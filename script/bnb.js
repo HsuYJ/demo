@@ -159,6 +159,22 @@
 						'z-index': '9999999'
 					},
 
+					'.infoHolder': {
+						position: 'absolute',
+						padding: '1%',
+						display: 'inline-block',
+						left: 0,
+						top: 0,
+						//width: '20%',
+						//height: '10%',
+						'background-color': 'rgba(0, 0, 0, 0.75)',
+
+						'> *': {
+							display: 'block',
+							color: '#FFFFFF'
+						}
+					},
+
 					'.fieldHolder': {
 						overflow: 'hidden',
 						position: 'absolute',
@@ -207,6 +223,7 @@
 			// object
 			var Holder,
 				FieldHolder, Field, FieldCanvas, EffectField, EffectFieldCanvas, PaddleRail, PaddleRailCanvas;
+			var InfoHolder, Info_autoPlay;
 
 			function generateObjects() {
 
@@ -225,6 +242,21 @@
 
 							ballRender.launch();
 						})
+					),
+
+					InfoHolder = mdom().addClass('infoHolder')
+					.appendChildren(
+
+						mtext('功能鍵說明:'),
+						mtext('space: launch ball'),
+						mtext('1: 延展 paddle'),
+						mtext('2:  縮短 paddle'),
+						mtext('3:  添加 ball'),
+						mtext('4:  toggle Auto play'),
+						mtext('5:  laser gun'),
+						mtext('6:  shotgun'),
+						mtext('7:  machine gun'),
+						Info_autoPlay = mtext('Auto play mode: false')
 					)
 				)
 				.mount(document.body);
@@ -2393,7 +2425,8 @@
 						new Ball(degree);
 					} else if (key === '4') {
 						console.log('auto play');
-						system.autoPlay = true;
+						system.autoPlay = !system.autoPlay;
+						Info_autoPlay.setText(system.autoPlay ? 'Auto play mode: true' : 'Auto play mode: false');
 					} else if (key === '5') {
 						console.log('laser');
 						BulletMode.start('laser');
@@ -2407,6 +2440,8 @@
 						console.log('smoke');
 
 						new SmokeLauncher(Paddle.x.value, Size.fieldHeight - Size.paddleRailHeight * 2);
+					} else if (key === ' ') { // space
+						ballRender.launch();
 					} else if (key === 'Escape') {
 						//nwin.close();
 					}
