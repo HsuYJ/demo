@@ -960,7 +960,7 @@
 
 					mdom().addClass('ballReflection')
 				);
-				this.degree = mstate(DEGREE || 75).setTarget(this).addHandler({ handler: ballStateHelper.degreeHandler });
+				this.degree = mstate(75).setTarget(this).addHandler({ handler: ballStateHelper.degreeHandler });
 				this.powerX = Size.power;
 				this.powerY = Size.power;
 				this.x = mstate(0, null, 120).setTarget(this).addMethod('adaptToPaddle', ballStateHelper.xAdaptToPaddle).addHandler({ handler: ballStateHelper.xHandler });
@@ -973,6 +973,11 @@
 				// initializing
 				this.x.adaptToPaddle();
 				this.y.set(Size.ballFloor);
+
+				if (DEGREE) {
+					this.degree.set(DEGREE);
+				}
+
 				FieldHolder.appendChild(this.dom);
 				Balls.push(this);
 			}
