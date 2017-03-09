@@ -16,6 +16,7 @@
 			['ani_slime_angry', 'ani_slime_angry.png'],
 			['ani_slime_dead', 'ani_slime_dead.png'],
 			['ani_orc_idle', 'ani_orc_idle.png'],
+			['ani_knight_idle', 'ani_knight_idle.png'],
 			['monster2', 'monster_fly.png'],
 			['buff', 'buff.png'],
 			['bullet_ironBall', 'bullet_ironBall.png'],
@@ -88,7 +89,8 @@
 				buffHeight: 4,
 				buffMove: 10,
 
-				paddleRailHeight: 10,
+				paddleRailHeight: 20,
+				paddleY: 10,
 				paddleWidth: 2 * 6, // 6x ballDiameter
 				paddleHeight: 2,
 
@@ -140,6 +142,7 @@
 				PaddleRailCanvas.resize(s.fieldWidth, s.paddleRailHeight);
 
 				setProps(Paddle, {
+					y: s.paddleY,
 					originWidth: s.paddleWidth,
 					width: s.paddleWidth,
 					height: s.paddleHeight,
@@ -482,7 +485,7 @@
 				var frameNumber = DURATION / 16;
 				var dpf = gap / frameNumber; // delta per frame
 				var firstLetter = PROP_NAME[0];
-				if (firstLetter === 's' || firstLetter === 'o' || firstLetter === 'b' ) { // scale, opacity, blink
+				if (firstLetter === 's' || firstLetter === 'o' || firstLetter === 'b') { // scale, opacity, blink
 					// do nothing
 				} else {
 					dpf = Math.round(dpf);
@@ -519,7 +522,10 @@
 					var targetValue = PROPS[propName];
 					var gap = targetValue - presentValue;
 					var dpf = gap / frameNumber; // delta per frame
-					if (propName[0] !== 's') { // not scale
+					var firstLetter = propName[0];
+					if (firstLetter === 's' || firstLetter === 'o' || firstLetter === 'b') { // scale, opacity, blink
+						// do nothing
+					} else {
 						dpf = Math.round(dpf);
 					}
 					var transform = transforms[propName];
@@ -684,23 +690,7 @@
 			var PreviousIndex = Math.floor(150 / 16);
 			var Paddle = {
 
-				init: function(WIDTH, HEIGHT) {
-
-					this.originWidth = PaddleWidth;
-					this.width.set(PaddleWidth);
-					this.height = PaddleHeight;
-					this.toY = PaddleHeight;
-					document.addEventListener('mousemove', Paddle.move);
-					this.alive = true;
-				},
-
-				audio: {
-					bounce: Ado.audio('./audio/barBounce.wav', 0.4),
-					extend: Ado.audio('./audio/extend.wav', 0.4),
-					extendEnd: Ado.audio('./audio/extendEnd.wav', 0.4)
-				},
-
-				alive: false,
+				alive: true,
 
 				friction: 1,
 
@@ -729,6 +719,8 @@
 						}
 					}
 				}),
+
+				y: 0,
 
 				originWidth: 0,
 
@@ -839,7 +831,7 @@
 					var toY = this.toY;
 
 					CTX.save();
-					CTX.translate(this.x.value + toX, toY);
+					CTX.translate(this.x.value + toX, this.y + toY);
 					CTX.translate(-toX * scaleX, -toY * scaleY);
 					CTX.scale(scaleX, scaleY);
 					CTX.globalAlpha = this.opacity;
@@ -862,19 +854,33 @@
 					}
 				},
 
+				bounce: function() {
+
+					Audios.paddleBounce.play();
+					// compress
+					setProps(this, {
+
+						scaleX: 1.2,
+						scaleY: 0.8
+					});
+					// bounce
+					setKeyframes(this, this.keyframeSet.bounce);
+					this.canvas.launchUpdate(this);
+				},
+
 				keyframeSet: {
 					bounce: (function() {
 
-						var deltaX = 0.4;
-						var deltaY = -0.4;
-						var duration = 240;
+						var deltaX = 0.2;
+						var deltaY = -0.2;
+						var duration = 160;
 						var keyframes = [];
 
 						for (var i = 0; i < i + 1; i++) {
 							var isEnd = false;
 
-							deltaX *= -0.6;
-							deltaY *= -0.6;
+							deltaX *= -0.5;
+							deltaY *= -0.5;
 
 							if (deltaX > -0.01 && deltaX < 0.01) {
 								deltaX = 0;
@@ -899,46 +905,29 @@
 						}
 
 						return keyframes;
-					})()
+					}())
 				},
 
-				bounce: function() {
+				destroy: function() {
 
-					var deltaX = 0.4;
-					var deltaY = -0.4;
-					var duration = 240;
-
-					Audios.paddleBounce.play();
-					// compress
-					setProps(this, {
-
-						scaleX: 1 + deltaX,
-						scaleY: 1 + deltaY
-					});
-					// bounce
-					setKeyframes(this, this.keyframeSet.bounce);
+					this.toY = this.height;
+					setTransforms(this, {
+						scaleX: 2,
+						scaleY: 2,
+						opacity: 0
+					}, 500);
 					this.canvas.launchUpdate(this);
+					this.alive = false;
 				},
 
-				destroy: function() { // u
+				revive: function() {
 
-					var duration = Paddle.destroyDuration;
-
-					Paddle.initAnime('scaleX', 2, duration);
-					Paddle.initAnime('scaleY', 2, duration);
-					Paddle.initAnime('opacity', 0, duration);
-					Paddle.alive = false;
-				},
-
-				revive: function() { // u
-
-					var duration = Paddle.destroyDuration;
-
-					extendMode.end();
-					Paddle.scaleX = 1;
-					Paddle.scaleY = 1;
-					Paddle.initAnime('opacity', 1, duration);
-					Paddle.alive = true;
+					this.toY = this.height / 2;
+					this.scaleX = 1;
+					this.scaleY = 1;
+					setTransform(this, 'opacity', 1, 500);
+					this.canvas.launchUpdate(this);
+					this.alive = true;
 				},
 
 				// adaptToCursor
@@ -1052,7 +1041,7 @@
 
 							var fieldHeight = Size.fieldHeight;
 
-							if (prevBallY <= (fieldHeight - Size.paddleRailHeight + Size.paddleHeight)) { // above bar
+							if (prevBallY <= (fieldHeight - Size.paddleRailHeight + Size.paddleY + Size.paddleHeight)) { // above bar
 								var barStateX = Paddle.x;
 								var barX = barStateX.value;
 								var barWidth = Paddle.width.value;
@@ -1082,9 +1071,6 @@
 							return;
 						}
 					}
-
-					//this.updateState(powerX, powerY, wayX, wayY, ballX, ballY, rotateZ, degree);
-					//return;
 
 					// bricks
 					// get region start, end x, y
@@ -1268,7 +1254,7 @@
 					Balls.splice(Balls.indexOf(this), 1);
 					// check if any ball existing
 					if (!Balls.length) {
-						//failed();
+						system.failed();
 					}
 				}
 			};
@@ -1327,9 +1313,9 @@
 			BallGhost.prototype = {
 				constructor: BallGhost,
 
-				update: function() {
+				update: function() { // empty
 
-
+					// do nothing
 				},
 
 				render: function(CTX) {
@@ -1387,7 +1373,6 @@
 					cancelAnimationFrame(this.renderTimer);
 					this.renderTimer = void 0;
 					this.updateTimer = void 0;
-					//clearInterval(BulletShooter);
 				},
 
 				lastUpdateTime: 0,
@@ -1406,17 +1391,6 @@
 					for (i = Balls.length - 1; i >= 0; i--) {
 						Balls[i].update(pps);
 					}
-
-					// bullet
-					/*var bulletNumber = Bullets.length;
-
-					if (bulletNumber) {
-						var power = Power / pps * -1; // y
-
-						for (i = bulletNumber - 1; i >= 0; i--) {
-							Bullets[i].process(power);
-						}
-					}*/
 				},
 
 				render: function() { // don't use 'this'
@@ -1426,11 +1400,6 @@
 					for (i = 0, l = Balls.length; i < l; i++) {
 						Balls[i].render();//.drag();
 					}
-					// bullet
-					//for (i = 0, l = Bullets.length; i < l; i++) {
-					//	Bullets[i].render();
-					//}
-
 					// recording paddle x for degree modifying
 					Paddle.x.push(Paddle.x.value);
 
@@ -1489,7 +1458,7 @@
 					index: 0,
 					set: void 0
 				};
-				this.color = REGION_X === BrickX ? '#333' : (REGION_X === BrickX - 1 ? '#CCC' : '#999');
+				this.color = '#FFFFFF';
 				this.image = Images.monster;
 				this.onAnimation = false;
 				this.animation = {
@@ -1664,23 +1633,27 @@
 
 				hit: function(ATK, DIRECTION) {
 
-					if (!this.imortal) {
-						this.blink = 1;
-						setTransform(this, 'blink', 0, 250);
-						Audios.brickHit.play();
-						this.live.add(-ATK);
+					if (this.brickGroup) {
+						this.brickGroup.hit(ATK);
+					} else {
+						if (!this.imortal) {
+							this.blink = 1;
+							setTransform(this, 'blink', 0, 250);
+							Audios.brickHit.play();
+							this.live.add(-ATK);
 
-						if (this.live.value) {
-							setAnimation(this, Images.ani_slime_angry, 62, 62);
-							this.onAnimation = true;
-							setProps(this, {
-								scaleX: 1.6,
-								scaleY: 0.4
-							});
-							setKeyframes(this, this.keyframeSet.hit);
-							this.canvas.launchUpdate(this);
-							//this.hitEffect.cast(DIRECTION);
-							//new ScoreEffect(this.x, this.y, '100');
+							if (this.live.value) {
+								setAnimation(this, Images.ani_slime_angry, 62, 62);
+								this.onAnimation = true;
+								setProps(this, {
+									scaleX: 1.6,
+									scaleY: 0.4
+								});
+								setKeyframes(this, this.keyframeSet.hit);
+								this.canvas.launchUpdate(this);
+								//this.hitEffect.cast(DIRECTION);
+								//new ScoreEffect(this.x, this.y, '100');
+							}
 						}
 					}
 				},
@@ -1692,6 +1665,10 @@
 				},
 
 				destroy: function() {
+
+					if (Math.random() < 0.25) {
+						new Buff(this);
+					}
 
 					this.zIndex = 1;
 					this.toY = Size.brickRadiusY;
@@ -1746,8 +1723,8 @@
 						hit: [
 							{
 								props: {
-									scaleX: 0.6,
-									scaleY: 1.4,
+									scaleX: 0.8,
+									scaleY: 1.2,
 								},
 
 								duration: 240
@@ -1755,8 +1732,8 @@
 
 							{
 								props: {
-									scaleX: 1.2,
-									scaleY: 0.8,
+									scaleX: 1.1,
+									scaleY: 0.9,
 								},
 
 								duration: 120
@@ -1848,13 +1825,13 @@
 
 				liveHandler: function() {
 
-					var brick = this.target;
+					var target = this.target;
 
 					if (!this.value) {
-						brick.destroy();
+						target.destroy();
 					} else {
 						if (this.get(-1) === 0) {
-							brick.revive();
+							target.revive();
 						}
 					}
 				},
@@ -1931,10 +1908,326 @@
 
 						bricksX.push(brick);
 						FieldCanvas.appendSprite(brick);
-						brick.live.add(Math.random() > 0.5 ? 2 : 0);
 					}
 				}
 			}
+
+			function BrickGroup(START_X, START_Y, WIDTH, HEIGHT) {
+
+				this.pX = 0; // fixed position
+				this.pY = 0;
+				this.x = Size.fieldWidth;
+				this.y = Size.fieldHeight;
+				this.z = 0;
+				this.zIndex = 0;
+				this.width = Size.brickWidth;
+				this.height = Size.brickHeight;
+				this.toX = 0;
+				this.toY = 0;
+				this.scaleX = 1;
+				this.scaleY = 1;
+				this.rotateZ = 0;
+				this.opacity = 1;
+				this.blink = 0;
+				this.onTransform = 0;
+				this.transforms = {
+					x: [],
+					y: [],
+					z: [],
+					width: [],
+					height: [],
+					scaleX: [],
+					scaleY: [],
+					rotateZ: [],
+					opacity: [],
+					blink: []
+				};
+				this.onKeyframe = false;
+				this.keyframes = {
+					number: 0,
+					index: 0,
+					set: void 0
+				};
+				this.color = '#FFFFFF';
+				this.onAnimation = false;
+				this.animation = {
+					lastUpdate: Date.now(),
+					index: 0,
+					frameNumber: 62,
+					fps: 62,
+					dpf: 1000 / 62,
+					image: Images.ani_knight_idle,
+				};
+				this.display = false;
+				this.live = mstate(0).setTarget(this)
+				.addTrimer(brickStateHelper.liveTrimer)
+				.addHandler({ handler: brickStateHelper.liveHandler });
+				this.bricks = [];
+
+				for (var i = START_X, il = START_X + WIDTH; i < il; i++) {
+					for (var j = START_Y, jl = START_Y + HEIGHT; j < jl; j++) {
+						this.appendBrick(Bricks[i][j]);
+					}
+				}
+			}
+
+			BrickGroup.prototype = {
+				constructor: BrickGroup,
+
+				appendBrick: function(BRICK) {
+
+					var x = this.x;
+					var y = this.y;
+					var brickX = BRICK.x;
+					var brickY = BRICK.y;
+
+					this.bricks.push(BRICK);
+					BRICK.brickGroup = this;
+					// update state
+					x = this.pX = this.x = Math.min(x, brickX);
+					y = this.pY = this.y = Math.min(y, brickY);
+					var width = this.width = Math.max(this.width, brickX + Size.brickWidth - x);
+					var height = this.height = Math.max(this.height, brickY + Size.brickHeight - y);
+
+					this.toX = width / 2;
+					this.toY = height;
+
+					return this;
+				},
+
+				appendBricks: function() { // u
+
+					var args = arguments;
+					var bricks = this.bricks;
+					var x = this.x;
+					var y = this.y;
+					var width = this.width;
+					var height = this.height;
+
+					for (var i = 0, l = args.length; i < l; i++) {
+						var brick = args[i];
+
+						bricks.push(brick);
+						brick.brickGroup = this;
+						// update state
+						var brickX = brick.x;
+						var brickY = brick.y;
+
+						x = this.x = Math.min(x, brickX);
+						y = this.y = Math.min(y, brickY);
+						width = this.width = Math.max(width, brickX + brick.width);
+					}
+				},
+
+				update: function(PROGRESS) { // min is 1
+
+					var transforms = this.transforms;
+
+					for (var i in transforms) {
+						var transform = transforms[i];
+						var l = transform.length;
+
+						if (l) {
+							if (PROGRESS > l) {
+								PROGRESS = l;
+							}
+
+							var value;
+
+							for (var t = 0, tl = PROGRESS; t < tl; t++) {
+								value = transform.shift();
+							}
+
+							this[i] = value;
+
+							if (!transform.length) { // last frame
+								this.onTransform--;
+							}
+						}
+					}
+
+					if (this.onAnimation) {
+						var now = Date.now();
+						var animation = this.animation;
+						var gap = now - animation.lastUpdate;
+
+						if (gap >= animation.dpf) {
+							animation.lastUpdate = now;
+
+							var animationIndex = animation.index += PROGRESS;
+
+							if (animationIndex >= animation.frameNumber) {
+								animation.index = 0;
+							}
+						}
+
+					}
+
+					if (!this.onTransform && this.onKeyframe) {
+						var keyframes = this.keyframes;
+						var number = keyframes.number;
+						var index = ++keyframes.index;
+
+						if (index < number) {
+							var keyframe = keyframes.set[index];
+
+							setTransforms(this, keyframe.props, keyframe.duration);
+						} else {
+							this.onKeyframe = false;
+						}
+					}
+
+					if (!this.onTransform && !this.onAnimation) { // finished
+						return true;
+					}
+				},
+
+				render: function(CTX) {
+
+					var scaleX = this.scaleX;
+					var scaleY = this.scaleY;
+					var toX = this.toX;
+					var toY = this.toY;
+
+					CTX.save();
+					CTX.translate(this.x + toX, this.y + this.z + toY);
+					CTX.rotate(this.rotateZ * Math.PI / 180);
+					CTX.translate(-toX * scaleX, -toY * scaleY);
+					CTX.scale(scaleX, scaleY);
+					CTX.globalAlpha = this.opacity;
+					//CTX.fillStyle = this.color;
+					//CTX.fillRect(0, 0, this.width, this.height);
+					//if (this.onAnimation) {
+						var animation = this.animation;
+						var index = animation.index;
+						var image = animation.image;
+						var frameNumber = animation.frameNumber;
+
+						CTX.drawImage(image,
+							index * (image.width / frameNumber),
+							0,
+							(image.width / frameNumber),
+							image.height,
+							0, 0, this.width, this.height
+						);
+					//} else {
+					//	CTX.drawImage(this.image, 0, 0, this.image.width, this.image.height, 0, 0, this.width, this.height);
+					//}
+
+					var blink = this.blink;
+
+					if (blink) {
+						image = image.hitImage;
+						CTX.globalAlpha = blink;
+						CTX.drawImage(image,
+							index * (image.width / frameNumber),
+							0,
+							(image.width / frameNumber),
+							image.height,
+							0, 0, this.width, this.height
+						);
+					}
+
+					CTX.restore();
+				},
+
+				hit: function(ATK) {
+
+					if (!this.imortal) {
+						this.blink = 1;
+						setTransform(this, 'blink', 0, 250);
+						Audios.brickHit.play();
+						this.live.add(-ATK);
+
+						if (this.live.value) {
+							//setAnimation(this, Images.ani_slime_angry, 62, 62);
+							//this.onAnimation = true;
+							setProps(this, {
+								scaleX: 1.4,
+								scaleY: 0.6
+							});
+							setKeyframes(this, Brick.prototype.keyframeSet.hit);
+							this.canvas.launchUpdate(this);
+						}
+					}
+				},
+
+				revive: function() {
+
+					var bricks = this.bricks;
+
+					for (var i = 0, l = bricks.length; i < l; i++) {
+						bricks[i].live.set(1, false);
+					}
+
+					this.display = true;
+					this.opacity = 0;
+					setTransform(this, 'opacity', 1, 500);
+					this.canvas.launchUpdate(this);
+				},
+
+				destroy: function() {
+
+					var bricks = this.bricks;
+
+					for (var i = 0, l = bricks.length; i < l; i++) {
+						bricks[i].live.set(0, false);
+					}
+
+					this.zIndex = 1;
+					this.toY = this.height / 2;
+
+					var power = Size.power / 60;
+					var wayX = Math.random() > 0.5 ? 1 : -1;
+
+					new Animator(this).setProps({
+						wayX: wayX,
+						xDelta: Math.random() * power * 0.2,
+						yDelta: Math.random() * power,
+						scale: 1,
+						scaleDelta: Math.random() / 60,
+						rotateZDelta: Math.random() * power / 2 * wayX
+					})
+					.setUpdater(function(TARGET) {
+
+						var scale = this.scale += this.scaleDelta;
+						var increseX = this.xDelta * scale;
+						var increseY = this.yDelta * scale;
+						var colorCode = this.colorCode;
+
+						TARGET.x += increseX * this.wayX;
+						TARGET.y -= increseY;
+						TARGET.scaleX = scale;
+						TARGET.scaleY = scale;
+						TARGET.rotateZ += this.rotateZDelta;
+
+						this.yDelta -= Size.drag / 60;
+					})
+					.addEndTest(function(TARGET) {
+
+						return TARGET.y >= Size.fieldHeight;
+					})
+					.addEndAction(function(TARGET) {
+
+						TARGET.x = TARGET.pX;
+						TARGET.y = TARGET.pY;
+						TARGET.zIndex = 0;
+						TARGET.scaleX = 1;
+						TARGET.scaleY = 1;
+						TARGET.rotateZ = 0;
+						TARGET.toY = TARGET.height;
+						TARGET.display = false;
+						TARGET.canvas.launchRender();
+
+						setTimeout(function() {
+
+							TARGET.live.set(10);
+							console.log(TARGET)
+						}, 2000);
+					})
+					.launch();
+				},
+			};
 
 			function Bullet(SIDE, ATTACK_POWER, PROPS) {
 
@@ -2219,31 +2512,200 @@
 								});
 							}
 
-							new SmokeLauncher(Paddle.x.value, Size.fieldHeight - Size.paddleRailHeight - Images.smoke0.height / 2);
-							console.log(Size.fieldHeight, Size.paddleRailHeight, Images.smoke0.height);
+							new SmokeLauncher(
+								Paddle.x.value,
+								Size.fieldHeight - Size.paddleRailHeight + Size.paddleY - Images.smoke0.height / 2
+							);
 							this.audio.play();
 						}
 					}
 				}
 			};
 
-			function Buff() {
+			function Buff(BRICK) {
 
+				this.x = BRICK.x;
+				this.y = BRICK.y;
+				this.zIndex = 0;
+				this.width = Size.brickWidth;
+				this.height = Size.brickHeight;
+				this.toX = 0;
+				this.toY = 0;
+				this.scaleX = 1;
+				this.scaleY = 1;
+				this.opacity = 1;
+				this.onTransform = 0;
+				this.transforms = {
+					x: [],
+					y: [],
+					width: [],
+					height: [],
+					scaleX: [],
+					scaleY: [],
+					opacity: []
+				};
+				this.image = Images.buff;
+				this.catched = false;
+				this.display = true;
 
+				EffectFieldCanvas.appendSprite(this);
+				EffectFieldCanvas.launchUpdate(this);
 			}
 
 			Buff.prototype = {
 				constructor: Buff,
 
+				update: function() {
 
+					if (this.catched) {
+						var opacity = this.opacity -= 0.05;
+
+						if (opacity <= 0) {
+							this.destroy();
+							return true;
+						}
+					} else {
+						var y = this.y += Size.power / 180;
+
+						if (y >= Size.ballFloor && y <= Size.ballFloor + Size.ballDiameter + Size.paddleHeight) {
+							var paddleStateX = Paddle.x;
+							var paddleX = paddleStateX.value;
+							var paddleWidth = Paddle.width.value;
+							var paddleRight = paddleX + paddleWidth;
+							var x = this.x;
+
+							if (x + this.width >= paddleX && x <= paddleRight) { // catched
+								var buffNumber = buffSet.buffs.length;
+								var r = Math.random();
+								var index = Math.floor(r * buffNumber);
+
+								buffSet.exec(index);
+								this.catched = true;
+							}
+
+							return;
+						}
+
+						if (y >= Size.fieldHeight) {
+							this.destroy();
+							return true;
+						}
+					}
+				},
+
+				render: function(CTX) {
+
+					var scaleX = this.scaleX;
+					var scaleY = this.scaleY;
+					var toX = this.toX;
+					var toY = this.toY;
+
+					CTX.save();
+					CTX.translate(this.x + toX, this.y + toY);
+					CTX.rotate(this.rotateZ * Math.PI / 180);
+					CTX.translate(-toX * scaleX, -toY * scaleY);
+					CTX.scale(scaleX, scaleY);
+					CTX.globalAlpha = this.opacity;
+
+					var image = this.image;
+
+					if (image) {
+						CTX.drawImage(image,
+							0, 0, image.width, image.height,
+							0, 0, this.width, this.height
+						);
+					} else {
+						CTX.fillStyle = this.color;
+						CTX.fillRect(0, 0, this.width, this.height);
+					}
+
+					CTX.restore();
+				},
+
+				destroy: function() {
+
+					this.canvas.removeSprite(this);
+				}
+			};
+
+			var buffSet = { // duration unit is second
+
+				exec: function(INDEX) {
+
+					var buff = this.buffs[INDEX];
+					var end = buff.end;
+
+					buff.buff();
+
+					if (end) {
+						clearTimeout(buff.timer);
+						buff.timer = setTimeout(end, buff.duration * 1000);
+					}
+				},
+
+				buffs: [
+					{
+						name: 'extend',
+
+						timer: void 0,
+
+						duration: 10,
+
+						buff: function() {
+
+							Paddle.extend(1.8);
+						},
+
+						end: function() {
+
+							Paddle.extend(1);
+						}
+					},
+
+					{
+						name: 'addBall',
+
+						buff: function() {
+
+							new Ball(Math.random() * 90);
+						}
+					},
+
+					{
+						name: 'laserGun',
+
+						buff: function() {
+
+							BulletMode.start('laser');
+						}
+					},
+
+					{
+						name: 'shotgun',
+
+						buff: function() {
+
+							BulletMode.start('shotgun');
+						}
+					},
+
+					{
+						name: 'machineGun',
+
+						buff: function() {
+
+							BulletMode.start('machineGun');
+						}
+					},
+				]
 			};
 
 			function SmokeLauncher(X, Y, PROPS) {
 
 				this.x = X;
 				this.y = Y;
-				this.latency = 16;
-				this.number = 10;
+				this.latency = 24;
+				this.number = 15;
 				this.smokeProps = void 0;
 
 				for (var propName in PROPS) {
@@ -2277,14 +2739,16 @@
 			function Smoke(Y, PROPS) {
 
 				var image = Images['smoke' + (Math.random() > 0.5 ? 0 : 1)];
-				//var image = Images.smoke;
 				var width = image.width / 1;
 				var height = image.height / 1;
 
 				this.image = image;
 				this.x = Paddle.x.value + (Paddle.width.value - width) / 2;
 				this.y = Y;
-				this.dX = (Math.random() > 0.5 ? 1 : -1) * Math.random() * 4;
+
+				var wayX = Math.random() > 0.5 ? 1 : -1;
+
+				this.dX = Math.random() * 1.5 * wayX;
 				this.dY = -(Math.random() + 1) * Size.power / 100;
 				this.width = width;
 				this.height = height;
@@ -2292,10 +2756,10 @@
 				this.toY = image.height / 2;
 				this.scaleX = 0;
 				this.scaleY = 0;
-				this.dScaleX = 0.06;
-				this.dScaleY = 0.06;
+				this.dScaleX = 0.025;
+				this.dScaleY = 0.025;
 				this.rotateZ = Math.random() * 360;
-				this.dRotateZ = Math.random() > 0.5 ? 5 : -5;
+				this.dRotateZ = 5 * wayX;
 				this.opacity = 1;
 				this.dOpacity = -0.04;
 				this.display = true;
@@ -2318,11 +2782,13 @@
 					this.scaleX += this.dScaleX;// * Math.random();
 					this.scaleY += this.dScaleY;// * Math.random();
 					this.rotateZ += this.dRotateZ;
-					this.opacity += this.dOpacity;
+					//this.opacity += this.dOpacity;
+					this.opacity *= 0.94;
 
-					this.dY *= 0.96;
+					this.dY *= 0.94;
+					this.dOpacity *= 0.98;
 
-					if (this.opacity <= 0) {
+					if (this.opacity <= 0.01) {
 						this.destroy();
 						return true;
 					}
@@ -2366,6 +2832,24 @@
 
 					new Ball();
 
+					var bg = new BrickGroup(4, 2, 3, 3);
+					console.log(bg);
+					FieldCanvas.appendSprite(bg);
+					bg.live.set(20);
+					setAnimation(bg, Images.ani_knight_idle, 62, 62);
+					bg.onAnimation = true;
+					FieldCanvas.launchUpdate(bg);
+
+					for (var i = 0; i < BrickX; i++) {
+						for (var j = 0; j < BrickY; j++) {
+							var live = Bricks[i][j].live;
+
+							if (!live.value) {
+								live.add(Math.random() > 0.5 ? 2 : 0);
+							}
+						}
+					}
+
 					setInterval(function() {
 
 						for (var i = 0; i < Bricks.length; i++) {
@@ -2389,6 +2873,19 @@
 							}
 						}
 					}, 3000);
+				},
+
+				failed: function() {
+
+					ballRender.stop();
+					Paddle.destroy();
+					Audios.systemFailed.play();
+
+					setTimeout(function() {
+
+						Paddle.revive();
+						new Ball();
+					}, 2000);
 				}
 			};
 
