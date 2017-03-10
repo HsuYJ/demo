@@ -119,10 +119,15 @@
 				}
 
 				s.fieldLeft = (innerWidth - s.fieldWidth) / 2;
+
 				s.ballPower = s.power;
+
 				s.brickRadiusX = s.brickWidth / 2;
 				s.brickRadiusY = s.brickHeight / 2;
 				s.brickSizeGapHalf = (s.brickWidth - s.brickHeight) / 2;
+
+				s.paddleTop = s.fieldHeight - s.paddleRailHeight + s.paddleY;
+				s.paddleBottom = s.paddleTop + s.paddleHeight;
 
 				console.log(Size);
 			}
@@ -1671,7 +1676,7 @@
 
 				destroy: function() {
 
-					if (Math.random() < 0.25) {
+					if (Math.random() < 0.5) {
 						new Buff(this);
 					}
 
@@ -2534,8 +2539,8 @@
 				this.zIndex = 0;
 				this.width = Size.brickWidth;
 				this.height = Size.brickHeight;
-				this.toX = 0;
-				this.toY = 0;
+				this.toX = this.width / 2;
+				this.toY = this.height / 2;
 				this.scaleX = 1;
 				this.scaleY = 1;
 				this.opacity = 1;
@@ -2565,6 +2570,9 @@
 					if (this.catched) {
 						var opacity = this.opacity -= 0.05;
 
+						this.scaleX -= 0.05;
+						this.scaleY -= 0.05;
+
 						if (opacity <= 0) {
 							this.destroy();
 							return true;
@@ -2572,9 +2580,8 @@
 					} else {
 						var y = this.y += Size.power / 180;
 
-						if (y >= Size.ballFloor && y <= Size.ballFloor + Size.ballDiameter + Size.paddleHeight) {
-							var paddleStateX = Paddle.x;
-							var paddleX = paddleStateX.value;
+						if (Paddle.alive && y >= Size.paddleTop - this.height && y <= Size.paddleBottom) {
+							var paddleX = Paddle.x.value;
 							var paddleWidth = Paddle.width.value;
 							var paddleRight = paddleX + paddleWidth;
 							var x = this.x;
@@ -2882,6 +2889,7 @@
 
 				failed: function() {
 
+					clearInterval(BulletMode.timer);
 					ballRender.stop();
 					Paddle.destroy();
 					Audios.systemFailed.play();
