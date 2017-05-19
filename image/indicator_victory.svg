@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="100"
+   height="10"
+   viewBox="0 0 100 10"
+   id="svg8708"
+   version="1.1"
+   inkscape:version="0.91 r13725"
+   sodipodi:docname="indicator_victory.svg">
+  <defs
+     id="defs8710" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="5.6"
+     inkscape:cx="48.50545"
+     inkscape:cy="-7.7418701"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     units="px"
+     inkscape:window-width="1920"
+     inkscape:window-height="1017"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1" />
+  <metadata
+     id="metadata8713">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(0,-1042.3622)">
+    <g
+       style="font-style:normal;font-weight:normal;font-size:40px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:#ffffff;stroke-width:0.5;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="text9284-8"
+       transform="translate(215.64373,64.984892)">
+      <path
+         d="m -193.33297,980.51218 0.82,-0.68 2.92,3.71 4.5,-3.71 0.54,0.68 -5.33,4.41 -3.45,-4.41 z"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10px;font-family:Homoarakhn;-inkscape-font-specification:Homoarakhn;fill:#ffffff;stroke:#ffffff;stroke-width:0.5;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         id="path9307"
+         inkscape:connector-curvature="0" />
+      <path
+         d="m -182.96875,979.82218 0.98,0 -1.09,5.1 -0.98,0 1.09,-5.1 z"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10px;font-family:Homoarakhn;-inkscape-font-specification:Homoarakhn;fill:#ffffff;stroke:#ffffff;stroke-width:0.5;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         id="path9309"
+         inkscape:connector-curvature="0" />
+      <path
+         d="m -178.78047,980.99218 -0.59,2.75 q 1.34,0.24 2.57,0.24 1.54,0 3.55,-0.43 l -0.21,0.98 q -1.86,0.39 -3.58,0.39 -1.72,0 -3.48,-0.39 l 0.92,-4.32 q 1.87,-0.39 3.59,-0.39 1.72,0 3.47,0.39 l -0.21,0.98 q -1.85,-0.43 -3.5,-0.43 -1.14,0 -2.53,0.23 z"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10px;font-family:Homoarakhn;-inkscape-font-specification:Homoarakhn;fill:#ffffff;stroke:#ffffff;stroke-width:0.5;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         id="path9311"
+         inkscape:connector-curvature="0" />
+      <path
+         d="m -171.46515,980.19218 q 1.86,-0.39 3.58,-0.39 1.72,0 3.48,0.39 l -0.21,0.98 q -1.55,-0.36 -2.95,-0.42 l -0.89,4.17 -0.98,0 0.89,-4.18 q -1.35,0.05 -3.13,0.43 l 0.21,-0.98 z"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10px;font-family:Homoarakhn;-inkscape-font-specification:Homoarakhn;fill:#ffffff;stroke:#ffffff;stroke-width:0.5;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         id="path9313"
+         inkscape:connector-curvature="0" />
+      <path
+         d="m -156.96578,983.75218 0.58,-2.75 q -1.33,-0.24 -2.56,-0.24 -1.14,0 -2.53,0.23 l -0.59,2.75 q 1.34,0.24 2.57,0.24 1.14,0 2.53,-0.23 z m 0.81,0.78 q -1.86,0.39 -3.58,0.39 -1.72,0 -3.48,-0.39 l 0.92,-4.32 q 1.87,-0.39 3.59,-0.39 1.72,0 3.47,0.39 l -0.92,4.32 z"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10px;font-family:Homoarakhn;-inkscape-font-specification:Homoarakhn;fill:#ffffff;stroke:#ffffff;stroke-width:0.5;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         id="path9315"
+         inkscape:connector-curvature="0" />
+      <path
+         d="m -149.14047,981.89218 0,0 z m 1.26,0.64 q 0.67,0.13 1,0.41 l -0.42,1.98 -0.98,0 0.33,-1.53 q -1.11,-0.52 -2.66,-0.54 l -2.31,-0.03 -0.45,2.1 -0.98,0 0.8,-3.77 -0.67,0.11 0.19,-0.89 0.68,-0.16 q 1.66,-0.39 3.59,-0.39 1.72,0 3.47,0.39 l -0.21,0.98 -0.01,0 -0.24,1.13 -1.13,0.21 z m -4.83,-0.69 2.78,0.01 q 0.86,0 2.34,-0.19 l 0.14,-0.66 q -1.33,-0.24 -2.55,-0.24 -1.14,0 -2.53,0.23 l -0.18,0.85 z"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10px;font-family:Homoarakhn;-inkscape-font-specification:Homoarakhn;fill:#ffffff;stroke:#ffffff;stroke-width:0.5;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         id="path9317"
+         inkscape:connector-curvature="0" />
+      <path
+         d="m -142.04703,980.91218 0.98,0 -0.19,0.93 q 0.91,-0.05 1.98,-0.23 l 0.38,-1.79 0.98,0 -0.55,2.57 q -1.55,0.32 -2.99,0.38 l -0.46,2.15 -0.98,0 0.46,-2.14 q -1.54,-0.04 -3.09,-0.39 l 0.55,-2.57 0.98,0 -0.38,1.79 q 1.1,0.2 2.14,0.23 l 0.19,-0.93 z"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10px;font-family:Homoarakhn;-inkscape-font-specification:Homoarakhn;fill:#ffffff;stroke:#ffffff;stroke-width:0.5;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         id="path9319"
+         inkscape:connector-curvature="0" />
+    </g>
+  </g>
+</svg>

@@ -15,7 +15,7 @@ var Rl = (function() {
 	var ReadyTodos = [];
 	var Timestamp = Date.now();
 
-	function check() {
+	function check(NAME, TYPE) {
 
 		var i, l;
 
@@ -25,6 +25,8 @@ var Rl = (function() {
 
 		if (l) {
 			var progress = {
+				type: TYPE,
+				name: NAME,
 				loadedNumber: LoadedNumber,
 				totalNumber: OnLoadingNumber,
 				elapsed: Date.now() - Timestamp
@@ -41,13 +43,49 @@ var Rl = (function() {
 			}
 
 			for (i in Audios) {
-				Audios[i].removeEventListener('canplaythrough', check);
+				Audios[i].oncanplaythrough = void 0;
 			}
 
 			for (i = 0, l = ReadyTodos.length; i < l; i++) {
 				ReadyTodos[i](Resource);
 			}
 		}
+	}
+
+	function loadImage(NAME, FILE_NAME, PATH) {
+
+		OnLoadingNumber++;
+
+		var src = (PATH || ImagePath) + FILE_NAME;
+		var image = new Image();
+
+		image.addEventListener('load', function() {
+
+			check(NAME, 'image');
+		});
+		image.src = src;
+		Images[NAME] = image;
+	}
+
+	function loadAudio(NAME, FILE_NAME, PATH) {
+
+		OnLoadingNumber++;
+
+		var src = (PATH || AudioPath) + FILE_NAME;
+		var audio = new Audio(src);
+
+		/*audio.addEventListener('canplaythrough', function() {
+
+			check(NAME, 'audio');
+		});*/
+
+		audio.oncanplaythrough = function() {
+
+			check(NAME, 'audio');
+		};
+		Audios[NAME] = audio;
+
+		return this;
 	}
 
 	function Container(NAME) { // u
@@ -112,33 +150,15 @@ var Rl = (function() {
 
 		loadImage: function(NAME, FILE_NAME, PATH) {
 
-			OnLoadingNumber++;
-
-			var src = (PATH || ImagePath) + FILE_NAME;
-			var image = new Image();
-
-			image.addEventListener('load', check);
-			image.src = src;
-			Images[NAME] = image;
+			loadImage(NAME, FILE_NAME, PATH);
 
 			return this;
 		},
 
 		loadImages: function() {
 
-			var args = arguments;
-			var l = args.length;
-
-			OnLoadingNumber += l;
-
-			for (var i = 0; i < l; i++) {
-				var arg = args[i];
-				var src = (arg[2] || ImagePath) + arg[1];
-				var image = new Image();
-
-				image.addEventListener('load', check);
-				image.src = src;
-				Images[arg[0]] = image;
+			for (var i = 0, l = arguments.length; i < l; i++) {
+				loadImage.apply(null, arguments[i]);
 			}
 
 			return this;
@@ -146,31 +166,15 @@ var Rl = (function() {
 
 		loadAudio: function(NAME, FILE_NAME, PATH) {
 
-			OnLoadingNumber++;
-
-			var src = (PATH || AudioPath) + FILE_NAME;
-			var audio = new Audio(src);
-
-			audio.addEventListener('canplaythrough', check);
-			Audios[NAME] = audio;
+			loadAudio(NAME, FILE_NAME, PATH);
 
 			return this;
 		},
 
 		loadAudios: function() {
 
-			var args = arguments;
-			var l = args.length;
-
-			OnLoadingNumber += l;
-
-			for (var i = 0; i < l; i++) {
-				var arg = args[i];
-				var src = (arg[2] || AudioPath) + arg[1];
-				var audio = new Audio(src);
-
-				audio.addEventListener('canplaythrough', check);
-				Audios[arg[0]] = audio;
+			for (var i = 0, l = arguments.length; i < l; i++) {
+				loadAudio.apply(null, arguments[i]);
 			}
 
 			return this;

@@ -406,6 +406,11 @@ var Md = (function() {
 			return this;
 		},
 
+		transforming: function(NAME, VALUE, DURATION) {
+
+			return this.setTransition('transform', DURATION).setTransform(NAME, VALUE);
+		},
+
 		// child
 		appendChild: function(CHILD) {
 
@@ -515,11 +520,13 @@ var Md = (function() {
 
 			var eventListeners = this.eventListeners;
 			var eventListener = eventListeners[NAME];
-			var self = this;
+			/*var self = this;
 			var listenerFunction = function(e) {
 
 				LISTENER.call(self, e);
-			};
+			};*/
+
+			var listenerFunction = LISTENER.bind(this);
 			var entity = this.entity;
 
 			if (eventListener) { // same name
@@ -577,7 +584,10 @@ var Md = (function() {
 		addState: function(NAME, STATE) {
 
 			this.states[NAME] = STATE;
-			STATE.target = this;
+
+			if (typeof STATE === 'object') {
+				STATE.target = this;
+			}
 
 			return this;
 		},
@@ -744,7 +754,11 @@ var Md = (function() {
 
 		this.string = STRING;
 		this.entity.textContent = STRING;
+
+		return this;
 	};
+
+	/* CanvasDOM */
 
 	/* classList */
 
@@ -1108,6 +1122,7 @@ var Md = (function() {
 
 	function State(VALUE, NAME, CAP) {
 
+		this.initValue = VALUE;
 		this.value = VALUE;
 		this.prevValues = [];
 		this.cap = CAP || 2; // maximum capacity of prevValue
@@ -1116,6 +1131,7 @@ var Md = (function() {
 		this.handlers = [];
 		this.methods = {};
 		this.target = void 0; // set by Dom.addState()
+		this.props = {};
 
 		if (NAME) {
 			States[NAME] = this;
@@ -1136,11 +1152,11 @@ var Md = (function() {
 		get: function(INDEX) { // undefined or 0: p(present), -1: p - 1, -2: p - 2...
 
 			var value = this.value;
+			var prevValues = this.prevValues;
+			var length = prevValues.length;
 
-			if (INDEX) {
-				var prevValues = this.prevValues;
-
-				value = prevValues[prevValues.length + INDEX];
+			if (length && INDEX) {
+				value = prevValues[length + INDEX];
 			}
 
 			return value;
@@ -1174,7 +1190,7 @@ var Md = (function() {
 
 			// update value
 			var is_change = VALUE !== this.value;
-
+			
 			if (is_change) {
 				var prevValues = this.prevValues;
 
@@ -1214,6 +1230,13 @@ var Md = (function() {
 			return this;
 		},
 
+		multiply: function(VALUE, FORCE) {
+
+			this.set(this.value * VALUE, FORCE);
+
+			return this;
+		},
+
 		push: function(VALUE) { // ignores blocker and trimer, will not execute handler
 
 			var prevValues = this.prevValues;
@@ -1244,14 +1267,39 @@ var Md = (function() {
 			return this;
 		},
 
+		reset: function(VALUE) {
+			// set value directly
+			if (VALUE !== void 0) {
+				this.value = VALUE;
+				this.initValue = VALUE;
+			} else {
+				this.value = this.initValue;
+			}
+			// clear prevValues
+			var prevValues = this.prevValues;
+
+			for (var i = prevValues.length - 1; i >= 0; i--) {
+				prevValues.pop();
+			}
+
+			return this;
+		},
+
+		setProp: function(NAME, VALUE) {
+
+			this.props[NAME] = VALUE;
+
+			return this;
+		},
+
 		addMethod: function(NAME, METHOD) {
 
 			var self = this;
 			var method = METHOD.bind(this);
 
-			this[NAME] = function(value) {
+			this[NAME] = function(value, force) {
 
-				self.set(method(value));
+				self.set(method(value), force);
 			};
 
 			return this;
@@ -1287,6 +1335,155 @@ var Md = (function() {
 			});
 
 			return this;
+		}
+	};
+
+	/* stateModel */
+
+	function StateModel(CAP) {
+
+		var model = function(VALUE) {
+
+			this.value = VALUE;
+			this.prevValues = [];
+			this.cap = CAP || 2; // maximum capacity of prevValue
+			this.target = void 0;
+		};
+
+		model.prototype = {
+			constructor: model,
+
+			setTarget: function(TARGET) {
+
+				this.target = TARGET;
+
+				return this;
+			},
+
+			get: function(INDEX) {
+
+				var value = this.value;
+				var prevValues = this.prevValues;
+				var length = prevValues.length;
+
+				if (length && INDEX) {
+					value = prevValues[length + INDEX];
+				}
+
+				return value;
+			},
+
+			set: function(VALUE, FORCE) {
+				// block test
+				var is_blocked = false;
+
+				if (this.blocker) {
+					is_blocked = this.blocker(VALUE);
+				}
+
+				if (is_blocked) {
+					return;
+				}
+				// trim
+				if (this.trimer) {
+					VALUE = this.trimer(VALUE);
+				}
+				// change test
+				var is_change = VALUE !== this.value;
+				// update
+				if (is_change) {
+					var prevValues = this.prevValues;
+
+					prevValues.push(this.value);
+					this.value = VALUE;
+
+					if (prevValues.length > this.cap) {
+						prevValues.shift();
+					}
+				}
+
+				// handler
+				if (FORCE === false) {
+					return;
+				}
+
+				if (is_change || FORCE) {
+					this.handler();
+				}
+			},
+
+			add: function(VALUE, FORCE) {
+
+				this.set(this.value + VALUE, FORCE);
+			},
+
+			multiply: function(VALUE, FORCE) {
+
+				this.set(this.value * VALUE, FORCE);
+			},
+
+			push: function(VALUE) { // ignores blocker and trimer, will not execute handler
+
+				var prevValues = this.prevValues;
+
+				prevValues.push(this.value);
+				this.value = VALUE;
+
+				if (prevValues.length > this.cap) {
+					prevValues.shift();
+				}
+			},
+
+			update: function() {
+
+				this.handler();
+			}
+		};
+
+		this.model = model;
+	}
+
+	StateModel.prototype = {
+		constructor: StateModel,
+
+		addMethod: function(NAME, METHOD) {
+
+			var shadowName = '_' + NAME;
+			var modelPrototype = this.model.prototype;
+
+			modelPrototype[shadowName] = METHOD;
+			modelPrototype[NAME] = function(VALUE, FORCE) {
+
+				this.set(this[shadowName](VALUE), FORCE);
+			};
+
+			return this;
+		},
+
+		setBlocker: function(BLOCKER) {
+
+			this.model.prototype.blocker = BLOCKER;
+
+			return this;
+		},
+
+		setTrimer: function(TRIMER) {
+
+			this.model.prototype.trimer = TRIMER;
+
+			return this;
+		},
+
+		setHandler: function(HANDLER) {
+
+			this.model.prototype.handler = HANDLER;
+
+			return this;
+		},
+
+		newInstance: function(VALUE) {
+
+			return new this.model(VALUE);
 		}
 	};
 
@@ -1620,18 +1817,23 @@ var Md = (function() {
 				} else if (lastText === ')') {
 					TEXT = TEXT.substr(0, lastIndex) + TAIL + ')';
 				} else {
-					TEXT += TAIL;
+					var colonIndex = TEXT.indexOf(':');
+
+					if (colonIndex !== -1) {
+						TEXT = TEXT.replace(':', TAIL + ':');
+					} else {
+						TEXT += TAIL;
+					}
 				}
 			}
 		} else if (headText === ':' || headText === '[') { // :, :: or []
 			if (TEXT[4] === '(') { // :not(selector)
-				console.log(3323, TEXT);
 				selector = TEXT.substring(5, TEXT.length - 1);
 				TEXT = TEXT.replace(selector, trimSelector(selector, TAIL).substr(1));
 
-				if (!WITH) {
-					TEXT = ' ' + TEXT;
-				}
+				//if (!WITH) {
+				//	TEXT = ' ' + TEXT;
+				//}
 			}
 		} else if (headText === '*') {
 			if (TEXT[5] === '(') { // *:not(selector)
@@ -1722,6 +1924,13 @@ var Md = (function() {
 		getState: function(NAME) {
 
 			return States[NAME];
+		},
+
+		// StateModel
+
+		StateModel: function() {
+
+			return new StateModel();
 		},
 
 		// css

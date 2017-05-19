@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<spriter_data scml_version="1.0" generator="BrashMonkey Spriter" generator_version="r10" pixel_mode="1">
+    <folder id="0">
+        <file id="0" name="slime3.png" width="99" height="85" pivot_x="0.5" pivot_y="0.5"/>
+        <file id="1" name="slime2.png" width="29" height="14" pivot_x="0" pivot_y="1"/>
+        <file id="2" name="slime0.png" width="31" height="31" pivot_x="0" pivot_y="1"/>
+        <file id="3" name="slime1.png" width="10" height="10" pivot_x="0" pivot_y="1"/>
+        <file id="4" name="slime4.png" width="53" height="35" pivot_x="0.5" pivot_y="0.5"/>
+        <file id="5" name="slime5.png" width="20" height="19" pivot_x="0.5" pivot_y="0.5"/>
+        <file id="6" name="slime7.png" width="114" height="98" pivot_x="0.5" pivot_y="0.5"/>
+        <file id="7" name="slime6.png" width="52" height="26" pivot_x="0" pivot_y="1"/>
+        <file id="8" name="slime8.png" width="32" height="28" pivot_x="0" pivot_y="1"/>
+    </folder>
+    <entity id="0" name="entity_000">
+        <animation id="0" name="NewAnimation" length="1000" interval="100">
+            <mainline>
+                <key id="0">
+                    <object_ref id="0" timeline="0" key="0" z_index="0"/>
+                    <object_ref id="1" timeline="1" key="0" z_index="1"/>
+                    <object_ref id="2" timeline="2" key="0" z_index="2"/>
+                    <object_ref id="3" timeline="3" key="0" z_index="3"/>
+                    <object_ref id="4" timeline="4" key="0" z_index="4"/>
+                    <object_ref id="5" timeline="5" key="0" z_index="5"/>
+                </key>
+                <key id="1" time="498">
+                    <object_ref id="0" timeline="0" key="1" z_index="0"/>
+                    <object_ref id="1" timeline="1" key="1" z_index="1"/>
+                    <object_ref id="2" timeline="2" key="1" z_index="2"/>
+                    <object_ref id="3" timeline="3" key="1" z_index="3"/>
+                    <object_ref id="4" timeline="4" key="1" z_index="4"/>
+                    <object_ref id="5" timeline="5" key="1" z_index="5"/>
+                </key>
+                <key id="2" time="999">
+                    <object_ref id="0" timeline="0" key="1" z_index="0"/>
+                    <object_ref id="1" timeline="1" key="1" z_index="1"/>
+                    <object_ref id="2" timeline="2" key="1" z_index="2"/>
+                    <object_ref id="3" timeline="3" key="1" z_index="3"/>
+                    <object_ref id="4" timeline="4" key="2" z_index="4"/>
+                    <object_ref id="5" timeline="5" key="2" z_index="5"/>
+                </key>
+            </mainline>
+            <timeline id="0" name="slime3_000">
+                <key id="0" spin="0">
+                    <object folder="0" file="0" y="6" angle="0"/>
+                </key>
+                <key id="1" time="498" spin="0">
+                    <object folder="0" file="0" y="5" angle="0" scale_x="0.925287" scale_y="1.096766"/>
+                </key>
+            </timeline>
+            <timeline id="1" name="slime0_001">
+                <key id="0" spin="0">
+                    <object folder="0" file="2" x="-35" y="35" angle="0"/>
+                </key>
+                <key id="1" time="498" spin="0">
+                    <object folder="0" file="2" x="-35" y="37" angle="0"/>
+                </key>
+            </timeline>
+            <timeline id="2" name="slime0_002">
+                <key id="0" spin="0">
+                    <object folder="0" file="2" x="14" y="31" angle="0"/>
+                </key>
+                <key id="1" time="498" spin="0">
+                    <object folder="0" file="2" x="14" y="29" angle="0"/>
+                </key>
+            </timeline>
+            <timeline id="3" name="slime4">
+                <key id="0" spin="0">
+                    <object folder="0" file="4" x="4" y="-17" angle="0"/>
+                </key>
+                <key id="1" time="498" spin="0">
+                    <object folder="0" file="4" x="4" y="-18" angle="0" scale_y="1.247765"/>
+                </key>
+            </timeline>
+            <timeline id="4" name="slime5">
+                <key id="0">
+                    <object folder="0" file="5" x="-20" y="20" angle="0"/>
+                </key>
+                <key id="1" time="498">
+                    <object folder="0" file="5" x="-20" y="23" angle="180"/>
+                </key>
+                <key id="2" time="999">
+                    <object folder="0" file="5" x="-20" y="20" angle="359"/>
+                </key>
+            </timeline>
+            <timeline id="5" name="slime5_000">
+                <key id="0">
+                    <object folder="0" file="5" x="30" y="16" angle="0"/>
+                </key>
+                <key id="1" time="498">
+                    <object folder="0" file="5" x="30" y="13" angle="180" scale_x="1"/>
+                </key>
+                <key id="2" time="999">
+                    <object folder="0" file="5" x="30" y="16" angle="359"/>
+                </key>
+            </timeline>
+        </animation>
+    </entity>
+    <entity id="1" name="entity_001">
+        <animation id="0" name="NewAnimation" length="1000" interval="100">
+            <mainline>
+                <key id="0">
+                    <object_ref id="0" timeline="0" key="0" z_index="0"/>
+                    <object_ref id="1" timeline="1" key="0" z_index="1"/>
+                    <object_ref id="2" timeline="2" key="1" z_index="2"/>
+                    <object_ref id="3" timeline="3" key="0" z_index="3"/>
+                </key>
+                <key id="1" time="500">
+                    <object_ref id="0" timeline="0" key="1" z_index="0"/>
+                    <object_ref id="1" timeline="1" key="1" z_index="1"/>
+                    <object_ref id="2" timeline="2" key="3" z_index="2"/>
+                    <object_ref id="3" timeline="3" key="1" z_index="3"/>
+                </key>
+            </mainline>
+            <timeline id="0" name="slime7">
+                <key id="0" spin="0">
+                    <object folder="0" file="6" x="1" y="9"/>
+                </key>
+                <key id="1" time="500" spin="0">
+                    <object folder="0" file="6" x="1" y="9" scale_x="1.091854" scale_y="1.124347"/>
+                </key>
+            </timeline>
+            <timeline id="1" name="slime6">
+                <key id="0" spin="0">
+                    <object folder="0" file="7" x="-28" y="2"/>
+                </key>
+                <key id="1" time="500" spin="0">
+                    <object folder="0" file="7" x="-28" y="2" scale_y="1.422865"/>
+                </key>
+            </timeline>
+            <timeline id="2" name="slime8">
+                <key id="0" spin="-1">
+                    <object folder="0" file="8" x="-23" y="14"/>
+                </key>
+                <key id="1" spin="-1">
+                    <object folder="0" file="8" x="-35" y="32"/>
+                </key>
+                <key id="2" time="500" spin="-1">
+                    <object folder="0" file="8" x="-32" y="34" pivot_x="0" pivot_y="1" angle="349.002876" scale_x="1" scale_y="1"/>
+                </key>
+                <key id="3" time="500">
+                    <object folder="0" file="8" x="-23" y="14" pivot_x="0.387844" pivot_y="0.354935" angle="349.002876" scale_x="1" scale_y="1"/>
+                </key>
+            </timeline>
+            <timeline id="3" name="slime8_000">
+                <key id="0">
+                    <object folder="0" file="8" x="42" y="27" angle="352.844377" scale_x="-1" scale_y="1"/>
+                </key>
+                <key id="1" time="500" spin="-1">
+                    <object folder="0" file="8" x="42" y="27" angle="359.141637" scale_x="-1"/>
+                </key>
+            </timeline>
+        </animation>
+    </entity>
+</spriter_data>

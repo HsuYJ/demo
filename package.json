@@ -1,7 +1,10 @@
 {
 	"name": "breakoutclone",
 	"main": "index.html",
+	//"chromium-args": "--show-fps-counter --force-gpu-rasterization --enable-accelerated-2d-canvas",
+	"chromium-args": "--show-fps-counter --canvas-msaa-sample-count:0 --force-gpu-rasterization --enable-accelerated-2d-canvas",
 	"window": {
+		"frame": false,
 		"width": 1280,
 		"height": 720
 	}

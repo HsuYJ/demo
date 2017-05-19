@@ -76,9 +76,9 @@ var Clobe = (function() {
 
 	/* methods */
 
-	function Export(NAME, EXP) {
+	function Export(NAME, EXPORT) {
 
-		exps[NAME] = EXP;
+		exps[NAME] = EXPORT;
 
 		var req = reqs[NAME];
 
