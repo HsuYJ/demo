@@ -8317,11 +8317,11 @@
 					console.log('-game speed', speed);
 				} else if (key === 'ArrowRight') {
 					ballSpeed += 0.25;
-					BallPower.reset().multiply(ballSpeed);
+					BallPower.reset().multiply(ballSpeed, true);
 					console.log('+ball speed(', ballSpeed, ')', BallPower.value);
 				} else if (key === 'ArrowLeft') {
 					ballSpeed -= 0.25;
-					BallPower.reset().multiply(ballSpeed);
+					BallPower.reset().multiply(ballSpeed, true);
 					console.log('-ball speed(', ballSpeed, ')', BallPower.value);
 				}
 
